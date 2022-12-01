@@ -10,3 +10,7 @@ export function splitOnElement(arr: string[], separator: string) {
   }
   return result;
 }
+
+export function sum(arr: string[] | number[]) {
+  return arr.map(Number).reduce((prev, next) => prev + next, 0);
+}
