@@ -1,12 +1,9 @@
-export function splitOnElement(arr: string[], separator: string) {
-  const result: string[][] = [[]];
-  for (let index = 0; index < arr.length; index++) {
-    const el = arr[index];
-    if (el === separator) {
-      result.push([]);
-    } else {
-      result.at(-1)?.push(el);
-    }
-  }
-  return result;
-}
+## Rix1's solutions 👋
+
+I'm currently solving these using Deno (TypeScript).
+
+### How to run
+
+1. Install [Deno](https://deno.land/manual@v1.28.3/getting_started/installation) 🦕
+2. Run a solution with `cd <DAY/> && deno run --allow-read dayX.ts`. The
+   `allow-read` flag will allow Deno to read files from your file system.
