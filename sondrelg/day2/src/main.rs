@@ -100,7 +100,6 @@ fn calc(content: String) -> u16 {
 }
 
 fn main() {
-    // Load input
     let input_path = format!("{}/src/input", &env::var("CARGO_MANIFEST_DIR").unwrap());
     let path = Path::new(&input_path);
     let content = fs::read_to_string(path).unwrap();
