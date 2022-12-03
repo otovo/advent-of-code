@@ -48,18 +48,16 @@ COPY day_2.input FROM '/sql/day_2/input.csv' CSV DELIMITER ' ';
 -- SOLUTION
 
 SELECT
-    'Day 1 | Solution 2',
+    'Day 2 | Solution 2',
     sum(play_points) + sum(outcome_points)
 FROM day_2.input input
     JOIN day_2.play_map play ON play.my_play = input.my_play
     JOIN day_2.outcome_map map ON input.my_play = map.my_play AND input.op_play = map.op_play;
 
--- UNION ALL
-
 SELECT
-    'Day 1 | Solution 2',
+    'Day 2 | Solution 2',
     sum(map.outcome_points) + sum(play_points.play_points)
 FROM day_2.input input
     JOIN day_2.play_map play ON input.my_play = play.my_play
     JOIN day_2.outcome_map map ON play.expected_outcome = map.outcome AND input.op_play = map.op_play
-    JOIN day_2.play_map play_points ON map.my_play = play_points.my_play
+    JOIN day_2.play_map play_points ON map.my_play = play_points.my_play;
