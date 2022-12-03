@@ -41,7 +41,7 @@ TODO
 | --- | --- | --- |
 | [Day 1](https://adventofcode.com/2022/day/1) | [✅](sql/day_1/) | [❌](python/day_1/) |
 | [Day 2](https://adventofcode.com/2022/day/2) | [✅](sql/day_2/) | [❌](python/day_2/) |
-| [Day 3](https://adventofcode.com/2022/day/3) | [❌](sql/day_3/) | [❌](python/day_3/) |
+| [Day 3](https://adventofcode.com/2022/day/3) | [✅](sql/day_3/) | [❌](python/day_3/) |
 | [Day 4](https://adventofcode.com/2022/day/4) | [❌](sql/day_4/) | [❌](python/day_4/) |
 | [Day 5](https://adventofcode.com/2022/day/5) | [❌](sql/day_5/) | [❌](python/day_5/) |
 | [Day 6](https://adventofcode.com/2022/day/6) | [❌](sql/day_6/) | [❌](python/day_6/) |
