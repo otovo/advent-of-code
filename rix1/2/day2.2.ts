@@ -8,9 +8,24 @@ type Player1Keys = "A" | "B" | "C";
 type Player2Keys = "X" | "Y" | "Z";
 
 const hand = {
-  ROCK: 1,
-  PAPER: 2,
-  SCISSOR: 3,
+  ROCK: {
+    name: "ROCK",
+    score: 1,
+    beats: "SCISSOR",
+    weakTo: "PAPER",
+  },
+  PAPER: {
+    name: "PAPER",
+    score: 2,
+    beats: "ROCK",
+    weakTo: "SCISSOR",
+  },
+  SCISSOR: {
+    name: "SCISSOR",
+    score: 3,
+    beats: "PAPER",
+    weakTo: "ROCK",
+  },
 } as const;
 
 const score = {
@@ -26,50 +41,49 @@ const strategy = {
   DRAW: "DRAW",
 } as const;
 
-const charToHandMap = {
-  A: hand.ROCK,
-  X: hand.ROCK,
-  B: hand.PAPER,
-  Y: hand.PAPER,
-  C: hand.SCISSOR,
-  Z: hand.SCISSOR,
-} as const;
-
 const charToStrategyMap = {
   X: strategy.LOOSE,
   Y: strategy.DRAW,
   Z: strategy.WIN,
 } as const;
 
-const inverseMap = {
-  // Returns the loosing (inverse) hand
-  [hand.ROCK]: hand.SCISSOR,
-  [hand.PAPER]: hand.ROCK,
-  [hand.SCISSOR]: hand.PAPER,
-} as const;
+function getHandFromChar(char: Player1Keys | Player2Keys) {
+  switch (char) {
+    case "A":
+    case "X":
+      return hand.ROCK;
+    case "B":
+    case "Y":
+      return hand.PAPER;
+    case "C":
+    case "Z":
+      return hand.SCISSOR;
+    default:
+      throw new Error(`Unknown char <${char}>`);
+  }
+}
 
 function playRound(
   p1: Player1Keys,
   p2: Player2Keys,
   mode: ValueOf<typeof strategy> = strategy.DEFAULT
 ) {
-  const hs1 = charToHandMap[p1];
-  const hs2 = charToHandMap[p2];
+  const h1 = getHandFromChar(p1);
+  const h2 = getHandFromChar(p2);
 
   switch (true) {
-    case hs1 === hs2:
     case mode === strategy.DRAW:
-      return [hs1 + score.DRAW, hs1 + score.DRAW];
+      return [h1.score + score.DRAW, h1.score + score.DRAW];
     case mode === strategy.WIN:
-      return [hs1 + score.LOOSE, inverseMap[hs1] + score.WIN];
+      return [h1.score + score.LOOSE, hand[h1.weakTo].score + score.WIN];
     case mode === strategy.LOOSE:
-      return [hs1 + score.WIN, inverseMap[hs1] + score.LOOSE];
-    case hs1 === hand.ROCK && hs2 === hand.SCISSOR:
-    case hs1 === hand.PAPER && hs2 === hand.ROCK:
-    case hs1 === hand.SCISSOR && hs2 === hand.PAPER:
-      return [hs1 + score.WIN, hs2 + score.LOOSE];
+      return [h1.score + score.WIN, hand[h1.beats].score + score.LOOSE];
+    case h1.score === h2.score:
+      return [h1.score + score.DRAW, h1.score + score.DRAW];
+    case h1.beats === h2.name:
+      return [h1.score + score.WIN, h2.score + score.LOOSE];
     default:
-      return [hs1 + score.LOOSE, hs2 + score.WIN];
+      return [h1.score + score.LOOSE, h2.score + score.WIN];
   }
 }
 
