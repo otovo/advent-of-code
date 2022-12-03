@@ -52,10 +52,10 @@ function play(map: typeof scoreMap | typeof scoreMap2) {
 
 const t = performance.now();
 const task1Score = play(scoreMap);
-console.log(`Task 1: Your score is ${task1Score} in ${t} ms`);
+console.log(`Task 1: Your score is ${task1Score} (in ${t} ms)`);
 
 const t2 = performance.now();
 const task2Score = play(scoreMap2);
 console.log(
-  `Task 2: Your score would be ${task2Score} using the strategy guide in ${t2} ms`
+  `Task 2: Your score would be ${task2Score} using the strategy guide (in ${t2} ms)`
 );
