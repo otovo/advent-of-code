@@ -14,3 +14,5 @@ export function splitOnElement(arr: string[], separator: string) {
 export function sum(arr: string[] | number[]) {
   return arr.map(Number).reduce((prev, next) => prev + next, 0);
 }
+
+export type ValueOf<T> = T[keyof T];
