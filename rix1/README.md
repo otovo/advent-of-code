@@ -30,16 +30,19 @@ It's obviously more code, and to be frank, I'm not sure if it's more readable �
 at least not on first glance. It is more exstensible though.
 
 **🎉 TIL:** During my second attempt, I really wanted to use pattern matching –
-but this is not (yet) a primitive feature in JavaScript... So I read a bit
+but this is not ([yet](https://github.com/tc39/proposal-pattern-matching)) a primitive feature in JavaScript... So I read a bit
 around and learned from [1](https://kyleshevlin.com/pattern-matching) that I can
 actually use `switch(true)` statements to _sorta_ mimic pattern matching. The
 article also reminded me about
 ["Katas"](https://en.wikipedia.org/wiki/Kata#:~:text=Kata%20is%20a%20term%20used,memory%20and%20practise%20their%20craft.),
 a concept I've [completely forgotten existed](https://kata-log.rocks/).
 
-I'm quite happy with how my `playRound()` function turned out, as it was super
-easy to extend the code to support the new constraints in task 2.
+I'm happy with how my `playRound()` function turned out. The `switch(true)`
+statement in combination with the simple tree structure (embedding the game
+rules in the data structure) made it super easy to extend the code to support
+the new constraints in task 2.
 
-The only thing I want to improve is to validate the input. Right now I'm just
+~~The only thing I want to improve is to validate the input. Right now I'm just
 casting the input to get the correct type at the boundary, but ideally this
-should be validated at runtime as well.
+should be validated at runtime as well.~~ Edit: I just added
+[Zod](https://zod.dev/) for static + runtime type checking.

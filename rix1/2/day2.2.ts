@@ -1,11 +1,12 @@
+import { z } from "https://deno.land/x/zod/mod.ts";
 import { sum, ValueOf } from "../utils.ts";
 import { resolvePath } from "../filePaths.ts";
 
 const file = await Deno.readTextFile(resolvePath("./input.txt"));
 const lines = file.trim().split("\n");
 
-type Player1Keys = "A" | "B" | "C";
-type Player2Keys = "X" | "Y" | "Z";
+const p1Keys = z.enum(["A", "B", "C"]);
+const p2Keys = z.enum(["X", "Y", "Z"]);
 
 const hand = {
   ROCK: {
@@ -47,30 +48,20 @@ const charToStrategyMap = {
   Z: strategy.WIN,
 } as const;
 
-function getHandFromChar(char: Player1Keys | Player2Keys) {
-  switch (char) {
-    case "A":
-    case "X":
-      return hand.ROCK;
-    case "B":
-    case "Y":
-      return hand.PAPER;
-    case "C":
-    case "Z":
-      return hand.SCISSOR;
-    default:
-      throw new Error(`Unknown char <${char}>`);
-  }
-}
+const charToHandMap = {
+  A: hand.ROCK,
+  X: hand.ROCK,
+  B: hand.PAPER,
+  Y: hand.PAPER,
+  C: hand.SCISSOR,
+  Z: hand.SCISSOR,
+};
 
 function playRound(
-  p1: Player1Keys,
-  p2: Player2Keys,
+  h1: ValueOf<typeof hand>,
+  h2: ValueOf<typeof hand>,
   mode: ValueOf<typeof strategy> = strategy.DEFAULT
 ) {
-  const h1 = getHandFromChar(p1);
-  const h2 = getHandFromChar(p2);
-
   switch (true) {
     case mode === strategy.DRAW:
       return [h1.score + score.DRAW, h1.score + score.DRAW];
@@ -95,12 +86,17 @@ function play(options?: Options) {
   const { useStrategyGuide = false } = options || {};
   const myScores = [];
   for (let i = 0; i < lines.length; i++) {
-    const [elf, me] = lines[i].split(" ") as [Player1Keys, Player2Keys];
+    const [p1, p2] = lines[i].split(" ");
+
+    const elfHand = charToHandMap[p1Keys.parse(p1)];
+    const myHand = charToHandMap[p2Keys.parse(p2)];
 
     if (useStrategyGuide) {
-      myScores.push(playRound(elf, me, charToStrategyMap[me])[1]);
+      myScores.push(
+        playRound(elfHand, myHand, charToStrategyMap[p2Keys.parse(p2)])[1]
+      );
     } else {
-      myScores.push(playRound(elf, me)[1]);
+      myScores.push(playRound(elfHand, myHand)[1]);
     }
   }
   return sum(myScores);
