@@ -1,0 +1,11 @@
+services:
+  postgres:
+    container_name: otovo-adventofcode_pg15
+    image: postgres:15.1-alpine
+    restart: always
+    env_file:
+      - psql.env
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ../sql:/sql/
