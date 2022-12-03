@@ -40,14 +40,14 @@ TODO
 | | [SQL](sql/) | [Python](python/) |
 | --- | --- | --- |
 | [Day 1](https://adventofcode.com/2022/day_1) | [✅](sql/day_1/) | [❌](python/day_1/) |
-| [Day 2](https://adventofcode.com/2022/day_2) | [❌](sql/day_02/) | [❌](python/day_02/) |
-| [Day 3](https://adventofcode.com/2022/day_3) | [❌](sql/day_03/) | [❌](python/day_03/) |
-| [Day 4](https://adventofcode.com/2022/day_4) | [❌](sql/day_04/) | [❌](python/day_04/) |
-| [Day 5](https://adventofcode.com/2022/day_5) | [❌](sql/day_05/) | [❌](python/day_05/) |
-| [Day 6](https://adventofcode.com/2022/day_6) | [❌](sql/day_06/) | [❌](python/day_06/) |
-| [Day 7](https://adventofcode.com/2022/day_7) | [❌](sql/day_07/) | [❌](python/day_07/) |
-| [Day 8](https://adventofcode.com/2022/day_8) | [❌](sql/day_08/) | [❌](python/day_08/) |
-| [Day 9](https://adventofcode.com/2022/day_9) | [❌](sql/day_09/) | [❌](python/day_09/) |
+| [Day 2](https://adventofcode.com/2022/day_2) | [✅](sql/day_2/) | [❌](python/day_2/) |
+| [Day 3](https://adventofcode.com/2022/day_3) | [❌](sql/day_3/) | [❌](python/day_3/) |
+| [Day 4](https://adventofcode.com/2022/day_4) | [❌](sql/day_4/) | [❌](python/day_4/) |
+| [Day 5](https://adventofcode.com/2022/day_5) | [❌](sql/day_5/) | [❌](python/day_5/) |
+| [Day 6](https://adventofcode.com/2022/day_6) | [❌](sql/day_6/) | [❌](python/day_6/) |
+| [Day 7](https://adventofcode.com/2022/day_7) | [❌](sql/day_7/) | [❌](python/day_7/) |
+| [Day 8](https://adventofcode.com/2022/day_8) | [❌](sql/day_8/) | [❌](python/day_8/) |
+| [Day 9](https://adventofcode.com/2022/day_9) | [❌](sql/day_9/) | [❌](python/day_9/) |
 | [Day 10](https://adventofcode.com/2022/day_10) | [❌](sql/day_10/) | [❌](python/day_10/) |
 | [Day 11](https://adventofcode.com/2022/day_11) | [❌](sql/day_11/) | [❌](python/day_11/) |
 | [Day 12](https://adventofcode.com/2022/day_12) | [❌](sql/day_11/) | [❌](python/day_12/) |
