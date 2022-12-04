@@ -1,4 +1,4 @@
-use std::{env, fs, collections::HashSet};
+use std::{collections::HashSet, env, fs};
 // utils
 
 pub fn get_file() -> String {
@@ -11,23 +11,21 @@ pub fn get_file() -> String {
 pub fn day_01(input: String) {
     let mut cals: Vec<i32> = Vec::new();
     let mut elf: Vec<i32> = Vec::new();
-    
+
     for line in input.lines() {
         if line.is_empty() {
             cals.push(elf.iter().sum());
             elf.clear();
-        }
-        else {
+        } else {
             elf.push(line.parse::<i32>().unwrap());
         }
     }
     let part1 = cals.iter().max().unwrap();
     println!("part 1: {}", part1);
-    
+
     cals.sort_unstable();
     let part2: i32 = cals.iter().rev().take(3).sum();
     println!("part 2: {}", part2);
-
 }
 
 //day 02
@@ -35,7 +33,7 @@ pub fn day_02(input: String) {
     let mut total1: u32 = 0;
     let mut total2: u32 = 0;
     for line in input.lines() {
-        if line.is_empty(){
+        if line.is_empty() {
             break;
         }
         match line {
@@ -56,7 +54,6 @@ pub fn day_02(input: String) {
         let z: i32 = (op as i32 - 65) + (me as i32 - 89);
         let m = ((z % 3) + 3) % 3; // modulus 3
         total2 += (m + 1) as u32;
-
     }
     println!("part 1: {}", total1);
     println!("part 2: {}", total2);
@@ -66,7 +63,7 @@ pub fn day_02(input: String) {
 fn letter_to_priority(l: &char) -> u32 {
     let val = *l as u32;
     if val > 96 {
-        return val - 96
+        return val - 96;
     }
     val - 38
 }
@@ -74,12 +71,10 @@ fn letter_to_priority(l: &char) -> u32 {
 fn common_el(elements: &[&str]) -> char {
     let mut sets: Vec<HashSet<_>> = elements
         .iter()
-        .map(|e|  e.chars().collect::<HashSet<_>>())
+        .map(|e| e.chars().collect::<HashSet<_>>())
         .collect();
     let mut result = sets.pop().unwrap();
-    result.retain(|item| {
-        sets.iter().all(|set| set.contains(item))
-    });
+    result.retain(|item| sets.iter().all(|set| set.contains(item)));
     return *result.iter().next().unwrap();
 }
 
@@ -93,7 +88,7 @@ pub fn day_03(input: String) {
         part1 += letter_to_priority(el);
     }
     println!("part 1: {}", part1);
-    
+
     let mut part2: u32 = 0;
     let mut lines = input.lines().peekable();
     while lines.peek().is_some() {
