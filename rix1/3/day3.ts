@@ -4,12 +4,15 @@ import { findIntersection, sum } from "../utils.ts";
 const file = await Deno.readTextFile(resolvePath("./input.txt"));
 const lines = file.trim().split("\n");
 
+const LOWERCASE_OFFSET = 96;
+const UPPERCASE_OFFSET = 38;
+
 function getCharScore(char: string) {
   const charCode = char.charCodeAt(0);
-  if (charCode > 96) {
-    return charCode - 96;
+  if (charCode > LOWERCASE_OFFSET) {
+    return charCode - LOWERCASE_OFFSET;
   }
-  return charCode - 38;
+  return charCode - UPPERCASE_OFFSET;
 }
 
 function task1() {

@@ -9,8 +9,8 @@ function createInputArray(line: string) {
    * Input: 2-4
    * Output: [2,3,4]
    **/
-  const [a1, a2] = line.split("-").map(Number);
-  return new Array(a2 + 1 - a1).fill("").map((_el, index) => a1 + index);
+  const [from, to] = line.split("-").map(Number);
+  return new Array(to + 1 - from).fill("").map((_el, index) => from + index);
 }
 
 const taskMode = {
@@ -29,6 +29,8 @@ function runTask(mode: ValueOf<typeof taskMode>) {
 
     const intersection = findIntersection(arrA, arrB);
     if (mode === taskMode.FULLY_OVERLAP) {
+      // If the intersection has the same length as one of the original sets,
+      // we know it's completely overlapping
       if ([arrA.length, arrB.length].includes(intersection.length)) {
         countOverlap += 1;
       }

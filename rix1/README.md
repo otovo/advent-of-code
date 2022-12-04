@@ -46,3 +46,21 @@ the new constraints in task 2.
 casting the input to get the correct type at the boundary, but ideally this
 should be validated at runtime as well.~~ Edit: I just added
 [Zod](https://zod.dev/) for static + runtime type checking.
+
+#### Day 3
+
+Key learning today was to create a `input.test.txt` file that I use to validate and debug my code. I think I'll continue doing that.
+
+I think the only pitfall I had to backtrack from was that I started out using `Map()` instead of `Set()`. Because I wans't sure if I later would need both a reference to the original character and it's position, I tried to store both in a data structure looking something like this
+
+```js
+Map { [ "v" ] => [ [1, 4], [12] ] }
+```
+
+where each sub-array represented the left and right side of the string along with the position of the character. However, I quickly realized how cumbersome this was to work with. So I took a bet that the position wouldn't matter (the character reference could easily be transformed back from the "priority value" if I needed that.
+
+#### Day 4
+
+Fun to see [leverage](https://www.amazon.com/Effective-Engineer-Engineering-Disproportionate-Meaningful/dp/0996128107) in practice! Since I created the `findIntersection()` utility for day 3, I mostly had to think of how to transform the input to the right format for task 1. When task 2 came around, I already had the answer, so I meerly needed to add a condition to count `PARTIAL_OVERLAP` in addition to `FULLY_OVERLAP`.
+
+<img src="https://i.kym-cdn.com/entries/icons/original/000/000/142/feelsgoodman.png" alt="Feelsgoodman" width="120px">
