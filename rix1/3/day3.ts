@@ -12,7 +12,7 @@ function getCharScore(char: string) {
   return charCode - 38;
 }
 
-function findDuplicates(l: string[], r: string[]) {
+function findIntersection(l: string[], r: string[]) {
   const left = new Set(l);
   const right = new Set(r);
   return [...left].filter((char) => [...right].includes(char));
@@ -24,7 +24,7 @@ function task1() {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const split = line.length / 2;
-    const duplicates = findDuplicates(
+    const duplicates = findIntersection(
       [...line.slice(0, split)],
       [...line.slice(split)]
     );
@@ -37,8 +37,8 @@ function task2() {
   let total = 0;
   const t = performance.now();
   for (let i = 0; i < lines.length; i += 3) {
-    const duplicates = findDuplicates(
-      findDuplicates([...lines[i]], [...lines[i + 1]]),
+    const duplicates = findIntersection(
+      findIntersection([...lines[i]], [...lines[i + 1]]),
       [...lines[i + 2]]
     );
     total += getCharScore(duplicates[0]);
