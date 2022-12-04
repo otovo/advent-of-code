@@ -1,6 +1,6 @@
-use std::{env, fs};
 use std::ops::Index;
 use std::path::Path;
+use std::{env, fs};
 
 #[derive(Eq, PartialEq, Clone)]
 enum Strategy {
@@ -9,14 +9,13 @@ enum Strategy {
     Scissor,
 }
 
-
 impl Strategy {
     fn from_char(c: &str) -> Self {
         match c {
             "A" => Self::Rock,
             "B" => Self::Paper,
             "C" => Self::Scissor,
-            _ => panic!("Unhandled strategy: {c}")
+            _ => panic!("Unhandled strategy: {c}"),
         }
     }
 
@@ -58,14 +57,15 @@ impl Outcome {
             "X" => Self::Loss,
             "Y" => Self::Draw,
             "Z" => Self::Win,
-            _ => panic!("Unhandled outcome: {c}")
+            _ => panic!("Unhandled outcome: {c}"),
         }
     }
 
     fn from_strategies(opponent_strategy: &Strategy, my_strategy: &Strategy) -> Self {
         if my_strategy == &Strategy::from_desired_outcome(&Outcome::Win, opponent_strategy) {
             Self::Win
-        } else if opponent_strategy == &Strategy::from_desired_outcome(&Outcome::Loss, my_strategy) {
+        } else if opponent_strategy == &Strategy::from_desired_outcome(&Outcome::Loss, my_strategy)
+        {
             Self::Loss
         } else {
             Self::Draw
@@ -81,22 +81,25 @@ impl Outcome {
     }
 }
 
-
 fn calc(content: String) -> u16 {
     // Iterate over each set of items
-    content.lines().into_iter().map(|line| {
-        // Parse choices
-        let split = line.split(" ").collect::<Vec<&str>>();
-        let (opponent_choice, outcome) = (split.index(0), split.index(1));
+    content
+        .lines()
+        .into_iter()
+        .map(|line| {
+            // Parse choices
+            let split = line.split(' ').collect::<Vec<&str>>();
+            let (opponent_choice, outcome) = (split.index(0), split.index(1));
 
-        // Convert choice to strategy
-        let opponent_strategy = Strategy::from_char(opponent_choice);
-        let desired_outcome = Outcome::from_char(outcome);
-        let strategy = Strategy::from_desired_outcome(&desired_outcome, &opponent_strategy);
+            // Convert choice to strategy
+            let opponent_strategy = Strategy::from_char(opponent_choice);
+            let desired_outcome = Outcome::from_char(outcome);
+            let strategy = Strategy::from_desired_outcome(&desired_outcome, &opponent_strategy);
 
-        // Calculate score
-         strategy.points() + desired_outcome.points()
-    }).sum()
+            // Calculate score
+            strategy.points() + desired_outcome.points()
+        })
+        .sum()
 }
 
 fn main() {
