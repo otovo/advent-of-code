@@ -1,5 +1,5 @@
 import { resolvePath } from "../filePaths.ts";
-import { findIntersection } from "../utils.ts";
+import { findIntersection, ValueOf } from "../utils.ts";
 
 const file = await Deno.readTextFile(resolvePath("./input.txt"));
 const lines = file.trim().split("\n");
@@ -13,9 +13,14 @@ function createInputArray(line: string) {
   return new Array(a2 + 1 - a1).fill("").map((_el, index) => a1 + index);
 }
 
-function task1() {
+const taskMode = {
+  FULLY_OVERLAP: 1,
+  PARTIAL_OVERLAP: 2,
+};
+
+function runTask(mode: ValueOf<typeof taskMode>) {
   // In how many assignment pairs does one range fully contain the other?
-  let fullyContainedPairs = 0;
+  let countOverlap = 0;
   const t = performance.now();
   for (let i = 0; i < lines.length; i++) {
     const [a, b] = lines[i].split(",");
@@ -23,12 +28,18 @@ function task1() {
     const arrB = createInputArray(b);
 
     const intersection = findIntersection(arrA, arrB);
-    if ([arrA.length, arrB.length].includes(intersection.length)) {
-      fullyContainedPairs += 1;
+    if (mode === taskMode.FULLY_OVERLAP) {
+      if ([arrA.length, arrB.length].includes(intersection.length)) {
+        countOverlap += 1;
+      }
+    } else if (mode === taskMode.PARTIAL_OVERLAP) {
+      if (intersection.length) {
+        countOverlap += 1;
+      }
     }
   }
-  console.log(
-    `Task 1: Fully contained pairs ${fullyContainedPairs} (in ${t} ms)`
-  );
+  console.log(`Task ${mode}: Pairs overlapping ${countOverlap} (in ${t} ms)`);
 }
-task1();
+
+runTask(taskMode.FULLY_OVERLAP);
+runTask(taskMode.PARTIAL_OVERLAP);
