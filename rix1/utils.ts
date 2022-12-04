@@ -15,4 +15,11 @@ export function sum(arr: string[] | number[]) {
   return arr.map(Number).reduce((prev, next) => prev + next, 0);
 }
 
+type StringOrNum = string | number;
+export function findIntersection(l: StringOrNum[], r: StringOrNum[]) {
+  const left = new Set(l);
+  const right = new Set(r);
+  return [...left].filter((char) => [...right].includes(char));
+}
+
 export type ValueOf<T> = T[keyof T];
