@@ -98,3 +98,57 @@ pub fn day_03(input: String) {
     }
     println!("part 2: {}", part2);
 }
+
+//day 04
+
+struct Shift {
+    start: u32,
+    end: u32,
+}
+
+impl Shift {
+    fn new(data: &str) -> Shift {
+        let start: &str;
+        let end: &str;
+        (start, end) = data.split_once('-').unwrap();
+
+        Shift {
+            start: start.parse().unwrap(),
+            end: end.parse().unwrap(),
+        }
+    }
+
+    fn contains(&self, other: &Shift) -> bool {
+        self.start <= other.start && self.end >= other.end
+    }
+
+    fn contains_or_contained_by(&self, other: &Shift) -> bool {
+        self.contains(other) || other.contains(self)
+    }
+
+    fn overlaps(&self, other: &Shift) -> bool {
+        self.contains_or_contained_by(other)
+            || (self.start <= other.end && other.end <= self.end)
+            || (self.start <= other.start && other.start <= self.end)
+    }
+}
+
+pub fn day_04(input: String) {
+    let pairs: Vec<(Shift, Shift)> = input
+        .lines()
+        .map(|line| {
+            line.split_once(',')
+                .map(|(p1, p2)| (Shift::new(p1), Shift::new(p2)))
+                .unwrap()
+        })
+        .collect();
+
+    let part1 = pairs
+        .iter()
+        .filter(|(p1, p2)| p1.contains_or_contained_by(p2))
+        .count();
+    println!("part 1: {}", part1);
+
+    let part2 = pairs.iter().filter(|(p1, p2)| p1.overlaps(p2)).count();
+    println!("part 2: {}", part2);
+}
