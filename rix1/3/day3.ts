@@ -12,9 +12,9 @@ function getCharScore(char: string) {
   return charCode - 38;
 }
 
-function findDuplicates(l: string, r: string) {
-  const left = new Set(...[l]);
-  const right = new Set(...[r]);
+function findDuplicates(l: string[], r: string[]) {
+  const left = new Set(l);
+  const right = new Set(r);
   return [...left].filter((char) => [...right].includes(char));
 }
 
@@ -24,7 +24,10 @@ function task1() {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const split = line.length / 2;
-    const duplicates = findDuplicates(line.slice(0, split), line.slice(split));
+    const duplicates = findDuplicates(
+      [...line.slice(0, split)],
+      [...line.slice(split)]
+    );
     total += sum(duplicates.map((char) => getCharScore(char)));
   }
   console.log(`Task 1: Sum of priorities ${total} (in ${t} ms)`);
@@ -34,12 +37,10 @@ function task2() {
   let total = 0;
   const t = performance.now();
   for (let i = 0; i < lines.length; i += 3) {
-    const elf1 = new Set(...[lines[i]]);
-    const elf2 = new Set(...[lines[i + 1]]);
-    const elf3 = new Set(...[lines[i + 2]]);
-    const duplicates = [...elf1]
-      .filter((char) => [...elf2].includes(char))
-      .filter((char) => [...elf3].includes(char));
+    const duplicates = findDuplicates(
+      findDuplicates([...lines[i]], [...lines[i + 1]]),
+      [...lines[i + 2]]
+    );
     total += getCharScore(duplicates[0]);
   }
   console.log(`Task 2: Sum of priorities ${total} (in ${t} ms)`);
