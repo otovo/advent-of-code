@@ -1,4 +1,5 @@
 import { resolvePath } from "../filePaths.ts";
+import { ValueOf } from "../utils.ts";
 
 const file = await Deno.readTextFile(resolvePath("./input.txt"));
 const lines = file.trimEnd().split("\n");
@@ -44,7 +45,12 @@ function createInstructions(): number[][] {
   return rawInstructions;
 }
 
-function task1() {
+const craneVersion = {
+  "9000": "CrateMover 9000",
+  "9001": "CrateMover 9001",
+};
+
+function runTask(crane: ValueOf<typeof craneVersion>) {
   const instructions = createInstructions();
   const map = createMap();
   const t = performance.now();
@@ -53,7 +59,9 @@ function task1() {
     console.log(move, from, to);
 
     const characters = map[from - 1].splice(map[from - 1].length - move, move);
-    map[to - 1].push(...characters.reverse());
+    map[to - 1].push(
+      ...(crane === craneVersion["9001"] ? characters : characters.reverse())
+    );
   }
   const str = map.map((column) => column.at(-1));
   console.log(
@@ -61,4 +69,5 @@ function task1() {
   );
 }
 
-task1();
+runTask(craneVersion["9000"]);
+runTask(craneVersion["9001"]);
