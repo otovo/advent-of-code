@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::collections::HashSet;
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
@@ -148,4 +149,74 @@ pub fn day_04(input: String) {
 
     let part2 = pairs.iter().filter(|(p1, p2)| p1.overlaps(p2)).count();
     println!("part 2: {}", part2);
+}
+
+//day 05
+struct CrateStacks {
+    stacks: [Vec<char>; 9],
+    moves: Vec<(usize, usize, usize)>,
+}
+
+impl CrateStacks {
+    fn new(input: String) -> CrateStacks {
+        let mut stacks: [Vec<char>; 9] = Default::default();
+        let mut moves: Vec<(usize, usize, usize)> = Default::default();
+
+        for line in input.lines() {
+            // blank row is empty or 1
+            let second_column_char = line.chars().nth(1).unwrap_or('1');
+            //m[o]ve
+            if second_column_char == 'o' {
+                moves.push(
+                    line.split(' ')
+                        .skip(1)
+                        .step_by(2)
+                        .map(|el| el.parse::<usize>().unwrap())
+                        .into_iter()
+                        .next_tuple()
+                        .unwrap(),
+                );
+            } else if second_column_char != '1' {
+                line.chars()
+                    .skip(1)
+                    .step_by(4)
+                    .enumerate()
+                    .filter(|(_i, el)| *el != ' ')
+                    .for_each(|(i, el)| stacks[i].push(el));
+            }
+        }
+        CrateStacks { stacks, moves }
+    }
+
+    fn rearange(&self, li_fo: bool) -> CrateStacks {
+        let mut stacks = self.stacks.clone();
+        for (crates, from, to) in &self.moves {
+            let (to_move, to_remain) = stacks[from - 1].split_at(*crates);
+            let mut new_to = to_move.to_vec();
+
+            if li_fo {
+                new_to.reverse();
+            }
+            new_to.extend(&stacks[to - 1]);
+            stacks[from - 1] = to_remain.to_vec();
+            stacks[to - 1] = new_to.clone();
+        }
+        CrateStacks {
+            stacks,
+            moves: self.moves.clone(),
+        }
+    }
+
+    fn top_crates(&self) -> String {
+        self.stacks
+            .iter()
+            .map(|el| *el.first().unwrap_or(&'.'))
+            .collect()
+    }
+}
+pub fn day_05(input: String) {
+    let crate_stack = CrateStacks::new(input);
+
+    println!("part1: {}", crate_stack.rearange(true).top_crates());
+    println!("part2: {}", crate_stack.rearange(false).top_crates());
 }
