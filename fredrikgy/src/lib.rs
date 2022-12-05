@@ -1,11 +1,8 @@
-use std::{collections::HashSet, env, fs};
-// utils
+use std::collections::HashSet;
+// I'm keeping it all in one file so that i can easily reference previous days, and keep track of
+// how many lines I've written total
 
-pub fn get_file() -> String {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-    fs::read_to_string(filename).expect("Could not read file")
-}
+pub static SOLUTIONS: [fn(String); 5] = [day_05, day_04, day_03, day_02, day_01];
 
 //day 01
 pub fn day_01(input: String) {
