@@ -64,3 +64,14 @@ where each sub-array represented the left and right side of the string along wit
 Fun to see [leverage](https://www.amazon.com/Effective-Engineer-Engineering-Disproportionate-Meaningful/dp/0996128107) in practice! Since I created the `findIntersection()` utility for day 3, I mostly had to think of how to transform the input to the right format for task 1. When task 2 came around, I already had the answer, so I meerly needed to add a condition to count `PARTIAL_OVERLAP` in addition to `FULLY_OVERLAP`.
 
 <img src="https://i.kym-cdn.com/entries/icons/original/000/000/142/feelsgoodman.png" alt="Feelsgoodman" width="120px">
+
+#### Day 5
+
+Not surprisingly, most of today was about parsing and massaging the input to a
+format that made sense. But all in all, I'm pretty happy with how this turned
+out. After that was done, doing the actual transformations was meerly 17 lines
+of code.
+
+If there are any TIL's today, I guess it would be that (again) it pays off to
+have a nice datastructure. Solving task 2 was done on a single line, just
+avoiding reversing the array before moving it to the new column.
