@@ -3,7 +3,7 @@ use std::collections::HashSet;
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 5] = [day_05, day_04, day_03, day_02, day_01];
+pub static SOLUTIONS: [fn(String); 6] = [day_06, day_05, day_04, day_03, day_02, day_01];
 
 //day 01
 pub fn day_01(input: String) {
@@ -219,4 +219,21 @@ pub fn day_05(input: String) {
 
     println!("part1: {}", crate_stack.rearange(true).top_crates());
     println!("part2: {}", crate_stack.rearange(false).top_crates());
+}
+
+//day 06
+fn signal_search(input: &[char], win: usize) -> usize {
+    for (i, window) in input.windows(win).enumerate() {
+        let signal_length = window.iter().collect::<HashSet<_>>().len();
+        if signal_length == win {
+            return i + win;
+        }
+    }
+    panic!("Could not find signal")
+}
+
+pub fn day_06(input: String) {
+    let iv = input.chars().collect_vec();
+    println!("part1: {}", signal_search(&iv, 4));
+    println!("part2: {}", signal_search(&iv, 14));
 }
