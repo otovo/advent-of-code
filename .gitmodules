@@ -1,0 +1,3 @@
+[submodule "olepbr"]
+	path = olepbr
+	url = git@github.com:olepbr/aoc.git
