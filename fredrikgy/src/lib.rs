@@ -3,7 +3,7 @@ use std::collections::HashSet;
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 6] = [day_06, day_05, day_04, day_03, day_02, day_01];
+pub static SOLUTIONS: [fn(String); 7] = [day_07, day_06, day_05, day_04, day_03, day_02, day_01];
 
 //day 01
 pub fn day_01(input: String) {
@@ -236,4 +236,84 @@ pub fn day_06(input: String) {
     let iv = input.chars().collect_vec();
     println!("part1: {}", signal_search(&iv, 4));
     println!("part2: {}", signal_search(&iv, 14));
+}
+
+//day 07
+enum LineType {
+    EnterDir,
+    ExitDir,
+    File,
+    Nop,
+}
+struct DirectoryLine {
+    command: LineType,
+    size: u32,
+}
+impl DirectoryLine {
+    fn new(line: &str) -> DirectoryLine {
+        let parts = line.split(' ').collect_vec();
+        match parts[..] {
+            ["$", "cd", ".."] => DirectoryLine {
+                command: LineType::ExitDir,
+                size: 0,
+            },
+            ["$", "cd", _] => DirectoryLine {
+                command: LineType::EnterDir,
+                size: 0,
+            },
+            ["$", "ls"] | ["dir", _] => DirectoryLine {
+                command: LineType::Nop,
+                size: 0,
+            },
+            [size, _] => DirectoryLine {
+                command: LineType::File,
+                size: size.parse::<u32>().unwrap(),
+            },
+            _ => panic!("Could not parse line"),
+        }
+    }
+}
+
+pub fn day_07(input: String) {
+    let mut directories: Vec<u32> = Vec::new();
+    let mut stack: Vec<usize> = Vec::new();
+
+    for line in input.lines() {
+        let line_command = DirectoryLine::new(line);
+        match line_command {
+            DirectoryLine {
+                command: LineType::EnterDir,
+                size: _,
+            } => {
+                stack.push(directories.len());
+                directories.push(0);
+            }
+            DirectoryLine {
+                command: LineType::ExitDir,
+                size: _,
+            } => {
+                stack.pop();
+            }
+            DirectoryLine {
+                command: LineType::File,
+                size: s,
+            } => {
+                for node in &stack {
+                    directories[*node] += s;
+                }
+            }
+            _ => (),
+        }
+    }
+
+    let part1: u32 = directories.iter().filter(|el| *el < &100000).sum();
+    println!("part1: {}", part1);
+
+    let target = directories.first().unwrap() - 40000000;
+    let part2 = directories
+        .iter()
+        .sorted()
+        .find(|el| *el > &target)
+        .unwrap();
+    println!("part2: {}", part2);
 }
