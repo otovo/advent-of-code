@@ -298,22 +298,22 @@ pub fn day_07(input: String) {
                 command: LineType::File,
                 size: s,
             } => {
-                for node in &stack {
-                    directories[*node] += s;
+                for &node in &stack {
+                    directories[node] += s;
                 }
             }
             _ => (),
         }
     }
 
-    let part1: u32 = directories.iter().filter(|el| *el < &100000).sum();
+    let part1: u32 = directories.iter().filter(|&el| *el < 100000).sum();
     println!("part1: {}", part1);
 
     let target = directories.first().unwrap() - 40000000;
     let part2 = directories
         .iter()
         .sorted()
-        .find(|el| *el > &target)
+        .find(|&el| el > &target)
         .unwrap();
     println!("part2: {}", part2);
 }
