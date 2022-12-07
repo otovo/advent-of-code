@@ -7,22 +7,19 @@ pub static SOLUTIONS: [fn(String); 7] = [day_07, day_06, day_05, day_04, day_03,
 
 //day 01
 pub fn day_01(input: String) {
-    let mut cals: Vec<i32> = Vec::new();
-    let mut elf: Vec<i32> = Vec::new();
-
-    for line in input.lines() {
-        if line.is_empty() {
-            cals.push(elf.iter().sum());
-            elf.clear();
-        } else {
-            elf.push(line.parse::<i32>().unwrap());
-        }
-    }
-    let part1 = cals.iter().max().unwrap();
+    let mut group_sums = input
+        .split("\n\n")
+        .map(|el| {
+            el.lines()
+                .filter_map(|n| n.parse::<u32>().ok())
+                .sum::<u32>()
+        })
+        .collect_vec();
+    let part1 = group_sums.iter().max().unwrap();
     println!("part 1: {}", part1);
 
-    cals.sort_unstable();
-    let part2: i32 = cals.iter().rev().take(3).sum();
+    group_sums.sort_unstable();
+    let part2 = group_sums.iter().rev().take(3).sum::<u32>();
     println!("part 2: {}", part2);
 }
 
@@ -106,13 +103,15 @@ struct Shift {
 
 impl Shift {
     fn new(data: &str) -> Shift {
-        let start: &str;
-        let end: &str;
-        (start, end) = data.split_once('-').unwrap();
+        let parts: (u32, u32) = data
+            .splitn(2, '-')
+            .filter_map(|el| el.parse::<u32>().ok())
+            .collect_tuple()
+            .unwrap();
 
         Shift {
-            start: start.parse().unwrap(),
-            end: end.parse().unwrap(),
+            start: parts.0,
+            end: parts.1,
         }
     }
 
@@ -134,11 +133,7 @@ impl Shift {
 pub fn day_04(input: String) {
     let pairs: Vec<(Shift, Shift)> = input
         .lines()
-        .map(|line| {
-            line.split_once(',')
-                .map(|(p1, p2)| (Shift::new(p1), Shift::new(p2)))
-                .unwrap()
-        })
+        .filter_map(|pair| pair.split(',').map(Shift::new).collect_tuple())
         .collect();
 
     let part1 = pairs
@@ -153,38 +148,36 @@ pub fn day_04(input: String) {
 
 //day 05
 struct CrateStacks {
-    stacks: [Vec<char>; 9],
+    stacks: Vec<Vec<char>>,
     moves: Vec<(usize, usize, usize)>,
 }
 
 impl CrateStacks {
     fn new(input: String) -> CrateStacks {
-        let mut stacks: [Vec<char>; 9] = Default::default();
-        let mut moves: Vec<(usize, usize, usize)> = Default::default();
-
-        for line in input.lines() {
-            // blank row is empty or 1
-            let second_column_char = line.chars().nth(1).unwrap_or('1');
-            //m[o]ve
-            if second_column_char == 'o' {
-                moves.push(
-                    line.split(' ')
-                        .skip(1)
-                        .step_by(2)
-                        .map(|el| el.parse::<usize>().unwrap())
-                        .into_iter()
-                        .next_tuple()
-                        .unwrap(),
-                );
-            } else if second_column_char != '1' {
-                line.chars()
+        let parts = input.split_once("\n\n").unwrap();
+        let num_stacks = (1 + parts.0.lines().next().unwrap().len()) / 4;
+        let stacks = (0..num_stacks)
+            .map(|i| {
+                parts
+                    .0
+                    .lines()
+                    .filter_map(|line| line.chars().skip(1).nth(4 * i))
+                    .filter(|&el| el != ' ')
+                    .collect_vec()
+            })
+            .collect_vec();
+        let moves = parts
+            .1
+            .lines()
+            .map(|line| {
+                line.split(' ')
                     .skip(1)
-                    .step_by(4)
-                    .enumerate()
-                    .filter(|(_i, el)| *el != ' ')
-                    .for_each(|(i, el)| stacks[i].push(el));
-            }
-        }
+                    .step_by(2)
+                    .filter_map(|el| el.parse::<usize>().ok())
+                    .collect_tuple()
+                    .unwrap()
+            })
+            .collect_vec();
         CrateStacks { stacks, moves }
     }
 
@@ -208,10 +201,7 @@ impl CrateStacks {
     }
 
     fn top_crates(&self) -> String {
-        self.stacks
-            .iter()
-            .map(|el| *el.first().unwrap_or(&'.'))
-            .collect()
+        self.stacks.iter().filter_map(|el| el.first()).collect()
     }
 }
 pub fn day_05(input: String) {
