@@ -3,7 +3,9 @@ use std::collections::{HashMap, HashSet};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 7] = [day_07, day_06, day_05, day_04, day_03, day_02, day_01];
+pub static SOLUTIONS: [fn(String); 8] = [
+    day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+];
 
 //day 01
 pub fn day_01(input: String) {
@@ -264,6 +266,71 @@ pub fn day_07(input: String) {
         .values()
         .filter(|&el| el > &target)
         .min()
+        .unwrap();
+    println!("part2: {}", part2);
+}
+
+//day 08
+
+type TreeMap = Vec<Vec<u32>>;
+fn visibility(trees: &TreeMap, coord: &(usize, usize)) -> usize {
+    let &(row, col) = coord;
+    let tree = &trees[row][col];
+    let left = trees[row][..col].iter().max().unwrap() < tree;
+    let right = trees[row][col + 1..].iter().max().unwrap() < tree;
+    let over = trees.iter().take(row).map(|r| &r[col]).max().unwrap() < tree;
+    let under = trees.iter().skip(row + 1).map(|r| &r[col]).max().unwrap() < tree;
+    (left || right || over || under) as usize
+}
+
+fn scenic_score(trees: &TreeMap, coord: &(usize, usize)) -> usize {
+    // All the wierd unwraps is to handle hitting the boundary
+    // ideally a take_until().count() whould probably make this alot better
+
+    let &(row, col) = coord;
+    let tree = &trees[row][col];
+    let dim = trees.len();
+    let left = 1 + trees[row][..col]
+        .iter()
+        .rev()
+        .position(|el| el >= tree)
+        .unwrap_or(col - 1);
+    let right = 1 + trees[row][col + 1..]
+        .iter()
+        .position(|el| el >= tree)
+        .unwrap_or(dim - col - 2);
+    let over = 1 + trees
+        .iter()
+        .take(row)
+        .map(|r| r[col])
+        .rev()
+        .position(|el| &el >= tree)
+        .unwrap_or(row - 1);
+    let under = 1 + trees
+        .iter()
+        .skip(row + 1)
+        .map(|r| r[col])
+        .position(|el| &el >= tree)
+        .unwrap_or(dim - row - 2);
+    left * right * over * under
+}
+
+pub fn day_08(input: String) {
+    let trees = input
+        .lines()
+        .map(|line| line.chars().map(|c| c.to_digit(10).unwrap()).collect_vec())
+        .collect_vec();
+    let dim = trees.len();
+    let part1: usize = (1..dim - 1)
+        .cartesian_product(1..dim - 1)
+        .map(|coord| visibility(&trees, &coord))
+        .sum();
+    println!("part1: {}", part1 + dim * 4 - 4);
+
+    let part2: usize = (1..dim - 1)
+        .cartesian_product(1..dim - 1)
+        .map(|coord| scenic_score(&trees, &coord))
+        .max()
         .unwrap();
     println!("part2: {}", part2);
 }
