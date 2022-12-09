@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 8] = [
-    day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 9] = [
+    day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
 ];
 
 //day 01
@@ -333,4 +333,70 @@ pub fn day_08(input: String) {
         .max()
         .unwrap();
     println!("part2: {}", part2);
+}
+
+// day 09
+type Pos = (i32, i32);
+fn move_head(from: Pos, direction: char) -> Pos {
+    match direction {
+        'R' => (from.0 + 1, from.1),
+        'L' => (from.0 - 1, from.1),
+        'U' => (from.0, from.1 + 1),
+        'D' => (from.0, from.1 - 1),
+        _ => panic!("Could not parse direction"),
+    }
+}
+
+fn move_tail(from: Pos, head: Pos) -> Pos {
+    if from.0.abs_diff(head.0) < 2 && from.1.abs_diff(head.1) < 2 {
+        return from;
+    }
+    let (dx, dy) = (
+        (head.0 - from.0).clamp(-1, 1),
+        (head.1 - from.1).clamp(-1, 1),
+    );
+    (from.0 + dx, from.1 + dy)
+}
+
+pub fn day_09(input: String) {
+    //parse
+    let moves = input
+        .lines()
+        .filter_map(|el| el.split_once(' '))
+        .map(|(dir, n)| (dir.chars().next().unwrap(), n.parse::<i32>().unwrap()))
+        .collect_vec();
+
+    //part 1
+    let mut head = (0, 0);
+    let mut tail = (0, 0);
+    let mut visited: HashSet<Pos> = HashSet::new();
+    visited.insert(tail);
+    for &(dir, n) in &moves {
+        for _ in 0..n {
+            head = move_head(head, dir);
+            tail = move_tail(tail, head);
+            visited.insert(tail);
+        }
+    }
+    println!("part1: {}", visited.len());
+
+    //part 2
+    visited.clear();
+    head = (0, 0);
+    visited.insert(head);
+    let mut tails: Vec<Pos> = (0..9).map(|_| (0, 0)).collect_vec();
+    for &(dir, n) in &moves {
+        for _ in 0..n {
+            head = move_head(head, dir);
+            tails = tails
+                .iter()
+                .scan(head, |to, from| {
+                    *to = move_tail(*from, *to);
+                    Some(*to)
+                })
+                .collect_vec();
+            visited.insert(*tails.last().unwrap());
+        }
+    }
+    println!("part2: {}", visited.len());
 }
