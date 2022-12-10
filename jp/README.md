@@ -23,7 +23,7 @@ cd jp
 
 ### SQL
 
-Run the solutions of day N
+Run the solutions of day N<!--  -->
 
 ```
 make solution-sql day=1
@@ -43,7 +43,7 @@ TODO
 | [Day 2](https://adventofcode.com/2022/day/2) | [✅](sql/day_2/) | [❌](python/day_2/) |
 | [Day 3](https://adventofcode.com/2022/day/3) | [✅](sql/day_3/) | [❌](python/day_3/) |
 | [Day 4](https://adventofcode.com/2022/day/4) | [✅](sql/day_4/) | [❌](python/day_4/) |
-| [Day 5](https://adventofcode.com/2022/day/5) | [❌](sql/day_5/) | [❌](python/day_5/) |
+| [Day 5](https://adventofcode.com/2022/day/5) | [✅](sql/day_5/) | [❌](python/day_5/) |
 | [Day 6](https://adventofcode.com/2022/day/6) | [✅](sql/day_6/) | [❌](python/day_6/) |
 | [Day 7](https://adventofcode.com/2022/day/7) | [❌](sql/day_7/) | [❌](python/day_7/) |
 | [Day 8](https://adventofcode.com/2022/day/8) | [❌](sql/day_8/) | [❌](python/day_8/) |
