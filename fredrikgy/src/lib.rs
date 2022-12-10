@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 9] = [
-    day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 10] = [
+    day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
 ];
 
 //day 01
@@ -399,4 +399,40 @@ pub fn day_09(input: String) {
         }
     }
     println!("part2: {}", visited.len());
+}
+pub fn day_10(input: String) {
+    let commands = input
+        .lines()
+        .map(|el| {
+            let tup = el.split_once(' ');
+            match tup {
+                Some(a) => (2, a.1.parse::<i32>().unwrap()),
+                _ => (1, 0),
+            }
+        })
+        .scan((0, 1), |(cyc, reg), (inc_cyc, inc_reg)| {
+            for x in 0..inc_cyc {
+                let i: i32 = (*cyc + x) % 40;
+                if i.abs_diff(*reg) < 2 {
+                    print!("█");
+                } else {
+                    print!(" ");
+                }
+                if i == 39 {
+                    println!();
+                }
+            }
+
+            *cyc += inc_cyc;
+            *reg += inc_reg;
+            Some((*cyc, *reg))
+        })
+        .fold((20, 0), |(target, signal), (cyc, reg)| {
+            if target - cyc <= 2 {
+                (target + 40, signal + (reg * target))
+            } else {
+                (target, signal)
+            }
+        });
+    println!("part1: {}", commands.1);
 }
