@@ -1,7 +1,4 @@
 // Start of a package: 4 characters in a row that are different
-
-use std::collections::{HashSet, VecDeque};
-use std::ops::Index;
 use std::{env, fs};
 
 fn packet_start(input: &str) -> Option<(Vec<char>, usize)> {
