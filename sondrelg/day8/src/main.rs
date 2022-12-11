@@ -1,4 +1,5 @@
 use std::fs;
+use rayon::prelude::*;
 
 /// Check if a tree is visible wrt. the row of trees in front of it
 fn tree_is_visible_in_single_direction(height: usize, trees: &Vec<usize>) -> bool {
@@ -101,7 +102,7 @@ fn main() {
         .lines()
         .enumerate()
         .map(|(line_index, line)| {
-            line.chars().enumerate()
+            line.par_char_indices()
                 .map(|(tree_index, tree_char)| {
                     // Edge nodes are always visible
                     if tree_index == 0
