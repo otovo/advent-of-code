@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::ops::Index;
 use std::path::Path;
 use std::{env, fs};
