@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 10] = [
-    day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 11] = [
+    day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
 ];
 
 //day 01
@@ -400,6 +400,8 @@ pub fn day_09(input: String) {
     }
     println!("part2: {}", visited.len());
 }
+
+//day 10
 pub fn day_10(input: String) {
     let commands = input
         .lines()
@@ -414,7 +416,7 @@ pub fn day_10(input: String) {
             for x in 0..inc_cyc {
                 let i: i32 = (*cyc + x) % 40;
                 if i.abs_diff(*reg) < 2 {
-                    print!("█");
+                    print!("▒");
                 } else {
                     print!(" ");
                 }
@@ -435,4 +437,103 @@ pub fn day_10(input: String) {
             }
         });
     println!("part1: {}", commands.1);
+}
+
+//day 11
+struct Monkey {
+    operation: char,
+    operand: Option<usize>,
+    test: usize,
+    true_dest: usize,
+    false_dest: usize,
+}
+impl Monkey {
+    fn new(input: &str) -> (Monkey, Vec<usize>) {
+        let mut lines = input.lines().skip(1);
+        let items = lines
+            .next()
+            .unwrap()
+            .split_once(": ")
+            .unwrap()
+            .1
+            .split(", ")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect_vec();
+        let (operand, operation) = lines
+            .next()
+            .unwrap()
+            .rsplitn(3, ' ')
+            .take(2)
+            .collect_tuple()
+            .unwrap();
+        let (test, true_dest, false_dest) = lines
+            .map(|l| l.rsplit_once(' ').unwrap().1.parse::<usize>().unwrap())
+            .collect_tuple()
+            .unwrap();
+        (
+            Monkey {
+                test,
+                true_dest,
+                false_dest,
+                operation: operation.chars().next().unwrap(),
+                operand: operand.parse::<usize>().ok(),
+            },
+            items,
+        )
+    }
+
+    fn get_move<F: Fn(usize) -> usize>(&self, items: &[usize], reducer: F) -> Vec<(usize, usize)> {
+        items
+            .iter()
+            .map(|&el| {
+                let other = self.operand.unwrap_or(el);
+                let new_value = match self.operation {
+                    '+' => reducer(el + other),
+                    '*' => reducer(el * other),
+                    _ => panic!("Unrecognised operation"),
+                };
+
+                match new_value % self.test {
+                    0 => (new_value, self.true_dest),
+                    _ => (new_value, self.false_dest),
+                }
+            })
+            .collect_vec()
+    }
+}
+
+fn do_monkey_rounds<F: Fn(usize) -> usize>(
+    items: &mut [Vec<usize>],
+    monkeys: &Vec<Monkey>,
+    rounds: usize,
+    reducer: &F,
+) -> usize {
+    let mut monkey_business = vec![0; monkeys.len()];
+    for _ in 0..rounds {
+        for (i, monkey) in monkeys.iter().enumerate() {
+            for (new_val, dest) in monkey.get_move(&items[i], reducer) {
+                items[dest].push(new_val);
+                monkey_business[i] += items[i].len();
+                items[i].clear();
+            }
+        }
+    }
+    monkey_business
+        .iter()
+        .sorted()
+        .rev()
+        .take(2)
+        .product::<usize>()
+}
+
+pub fn day_11(input: String) {
+    let sections = input.split("\n\n");
+    let (monkeys, mut items): (Vec<_>, Vec<_>) = sections.map(Monkey::new).unzip();
+    let part = |x: usize| x % monkeys.iter().map(|x| x.test).product::<usize>();
+
+    let part1 = do_monkey_rounds(&mut items.clone(), &monkeys, 20, &|x: usize| x / 3);
+    let part2 = do_monkey_rounds(&mut items, &monkeys, 10000, &part);
+
+    println!("part1: {}", part1);
+    println!("part2: {}", part2);
 }
