@@ -1,5 +1,5 @@
-use std::fs;
 use rayon::prelude::*;
+use std::fs;
 
 /// Check if a tree is visible wrt. the row of trees in front of it
 fn tree_is_visible_in_single_direction(height: usize, trees: &Vec<usize>) -> bool {
@@ -38,11 +38,7 @@ fn tree_is_visible(
     if {
         let mut trees = vec![];
         for index in 0..*line_index {
-            trees.push(line_index_as_usize(
-                &input,
-                &index,
-                &tree_index
-            ));
+            trees.push(line_index_as_usize(&input, &index, &tree_index));
         }
         tree_is_visible_in_single_direction(tree, &trees)
     } {
@@ -111,17 +107,9 @@ fn main() {
                         || line_index == grid_y - 1
                     {
                         1
-                    }
-                    else {
+                    } else {
                         let tree = tree_char.to_string().parse::<usize>().unwrap();
-                        tree_is_visible(
-                            tree,
-                            &input,
-                            &tree_index,
-                            &line_index,
-                            &grid_x,
-                            &grid_y
-                        )
+                        tree_is_visible(tree, &input, &tree_index, &line_index, &grid_x, &grid_y)
                     }
                 })
                 .sum::<u32>()

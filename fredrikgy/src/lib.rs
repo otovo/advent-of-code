@@ -1,10 +1,10 @@
 use itertools::Itertools;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 10] = [
-    day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 12] = [
+    day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
 ];
 
 //day 01
@@ -400,6 +400,8 @@ pub fn day_09(input: String) {
     }
     println!("part2: {}", visited.len());
 }
+
+//day 10
 pub fn day_10(input: String) {
     let commands = input
         .lines()
@@ -414,7 +416,7 @@ pub fn day_10(input: String) {
             for x in 0..inc_cyc {
                 let i: i32 = (*cyc + x) % 40;
                 if i.abs_diff(*reg) < 2 {
-                    print!("█");
+                    print!("▒");
                 } else {
                     print!(" ");
                 }
@@ -435,4 +437,198 @@ pub fn day_10(input: String) {
             }
         });
     println!("part1: {}", commands.1);
+}
+
+//day 11
+struct Monkey {
+    operation: char,
+    operand: Option<usize>,
+    test: usize,
+    true_dest: usize,
+    false_dest: usize,
+}
+impl Monkey {
+    fn new(input: &str) -> (Monkey, Vec<usize>) {
+        let mut lines = input.lines().skip(1);
+        let items = lines
+            .next()
+            .unwrap()
+            .split_once(": ")
+            .unwrap()
+            .1
+            .split(", ")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect_vec();
+        let (operand, operation) = lines
+            .next()
+            .unwrap()
+            .rsplitn(3, ' ')
+            .take(2)
+            .collect_tuple()
+            .unwrap();
+        let (test, true_dest, false_dest) = lines
+            .map(|l| l.rsplit_once(' ').unwrap().1.parse::<usize>().unwrap())
+            .collect_tuple()
+            .unwrap();
+        (
+            Monkey {
+                test,
+                true_dest,
+                false_dest,
+                operation: operation.chars().next().unwrap(),
+                operand: operand.parse::<usize>().ok(),
+            },
+            items,
+        )
+    }
+
+    fn get_move<F: Fn(usize) -> usize>(&self, items: &[usize], reducer: F) -> Vec<(usize, usize)> {
+        items
+            .iter()
+            .map(|&el| {
+                let other = self.operand.unwrap_or(el);
+                let new_value = match self.operation {
+                    '+' => reducer(el + other),
+                    '*' => reducer(el * other),
+                    _ => panic!("Unrecognised operation"),
+                };
+
+                match new_value % self.test {
+                    0 => (new_value, self.true_dest),
+                    _ => (new_value, self.false_dest),
+                }
+            })
+            .collect_vec()
+    }
+}
+
+fn do_monkey_rounds<F: Fn(usize) -> usize>(
+    items: &mut [Vec<usize>],
+    monkeys: &Vec<Monkey>,
+    rounds: usize,
+    reducer: &F,
+) -> usize {
+    let mut monkey_business = vec![0; monkeys.len()];
+    for _ in 0..rounds {
+        for (i, monkey) in monkeys.iter().enumerate() {
+            for (new_val, dest) in monkey.get_move(&items[i], reducer) {
+                items[dest].push(new_val);
+                monkey_business[i] += items[i].len();
+                items[i].clear();
+            }
+        }
+    }
+    monkey_business
+        .iter()
+        .sorted()
+        .rev()
+        .take(2)
+        .product::<usize>()
+}
+
+pub fn day_11(input: String) {
+    let sections = input.split("\n\n");
+    let (monkeys, mut items): (Vec<_>, Vec<_>) = sections.map(Monkey::new).unzip();
+    let part = |x: usize| x % monkeys.iter().map(|x| x.test).product::<usize>();
+
+    let part1 = do_monkey_rounds(&mut items.clone(), &monkeys, 20, &|x: usize| x / 3);
+    let part2 = do_monkey_rounds(&mut items, &monkeys, 10000, &part);
+
+    println!("part1: {}", part1);
+    println!("part2: {}", part2);
+}
+
+type Coord = (usize, usize);
+
+struct Map {
+    height_map: Vec<Vec<usize>>,
+    root: Coord,
+    term: Coord,
+}
+impl Map {
+    fn new(input: &str) -> Map {
+        let root = Map::find_loc(input, &'S'); // 'S' = 83
+        let term = Map::find_loc(input, &'E'); // 'E' = 69
+        let map = input
+            .lines()
+            .map(|l| {
+                l.chars()
+                    .map(|c| {
+                        match c {
+                            'E' => 123, // one above 'z' to mark top
+                            'S' => 97,  // 'S' is same as 'a'
+                            x => x as usize,
+                        }
+                    })
+                    .collect_vec()
+            })
+            .collect_vec();
+        Map {
+            height_map: map,
+            root,
+            term,
+        }
+    }
+
+    fn find_loc(input: &str, el: &char) -> Coord {
+        input
+            .lines()
+            .enumerate()
+            .find_map(|(i, l)| {
+                l.chars()
+                    .enumerate()
+                    .find_map(|(j, c)| if &c == el { Some((i, j)) } else { None })
+            })
+            .unwrap()
+    }
+
+    fn adjecent_nodes(node: &Coord) -> impl Iterator<Item = Coord> {
+        let (x, y) = (node.0 as i8, node.1 as i8);
+
+        [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+            .into_iter()
+            .filter(|(x, y)| x >= &0 && y >= &0)
+            .map(|(x, y)| (x as usize, y as usize))
+    }
+
+    fn get_height(&self, node: &Coord) -> Option<usize> {
+        // None if outside bounds
+        if let Some(inner) = self.height_map.get(node.0) {
+            inner.get(node.1).copied()
+        } else {
+            None
+        }
+    }
+
+    fn bfs(&self, start: Coord, term: usize, up: bool) -> usize {
+        let mut visited: HashMap<Coord, usize> = HashMap::new();
+        let mut queue: VecDeque<Coord> = VecDeque::new();
+
+        visited.insert(start, 0);
+        queue.push_back(start);
+        while let Some(v) = queue.pop_front() {
+            let v_height = self.get_height(&v).unwrap();
+            let v_path = *visited.get(&v).unwrap();
+            if v_height == term {
+                return v_path;
+            }
+            for n in Map::adjecent_nodes(&v) {
+                if let Some(w) = self.get_height(&n) {
+                    let small_step = up && w <= v_height || !up && w >= v_height;
+                    if !visited.contains_key(&n) && (small_step || w.abs_diff(v_height) == 1) {
+                        queue.push_back(n);
+                        visited.insert(n, v_path + 1);
+                    }
+                }
+            }
+        }
+        panic!("No path found")
+    }
+}
+
+pub fn day_12(input: String) {
+    let map = Map::new(&input);
+
+    println!("part1: {}", map.bfs(map.root, 123, true));
+    println!("part2: {}", map.bfs(map.term, 97, false));
 }
