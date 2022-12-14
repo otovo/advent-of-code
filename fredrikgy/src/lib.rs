@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet, VecDeque};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 13] = [
-    day_13, day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03,
+pub static SOLUTIONS: [fn(String); 14] = [
+    day_14, day_13, day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03,
     day_02, day_01,
 ];
 
@@ -667,4 +667,78 @@ pub fn day_13(input: String) {
     let part1: usize = part.iter().sum();
     println!("part1: {:?}", part);
     println!("part1: {:?}", part1);
+}
+
+//day 14
+pub fn day_14(input: String) {
+    let mut walls: HashSet<(i32, i32)> = input
+        //  parsing
+        .lines()
+        .map(|l| {
+            l.split(" -> ")
+                .map(|p| {
+                    p.splitn(2, ',')
+                        .map(|n| n.parse::<i32>().unwrap())
+                        .collect_tuple::<(i32, i32)>()
+                        .unwrap()
+                })
+                .collect_vec()
+        })
+        //  unpack to walls
+        .flat_map(|pairs| {
+            pairs
+                .iter()
+                .zip(pairs.iter().skip(1))
+                .flat_map(|(&(x1, y1), &(x2, y2))| {
+                    if x1 == x2 {
+                        (y1.min(y2)..=y1.max(y2)).map(|y| (x1, y)).collect_vec()
+                    } else {
+                        (x1.min(x2)..=x1.max(x2)).map(|x| (x, y1)).collect_vec()
+                    }
+                })
+                .collect_vec()
+        })
+        .collect();
+
+    let bottom = walls.iter().map(|(_, y)| *y).max().unwrap();
+    let floor = bottom + 2;
+    let mut part1 = true;
+    let part2 = (0..)
+        .find(|i| {
+            let mut x = 500;
+            if let Some(new_corn) = (0..).find_map(|y| {
+                if y == floor {
+                    if part1 {
+                        println!("part1: {:?}", i);
+                        part1 = false;
+                    }
+                    Some((x, y - 1))
+                } else if walls.contains(&(x, y)) {
+                    if walls.contains(&(x - 1, y)) {
+                        if walls.contains(&(x + 1, y)) {
+                            Some((x, y - 1))
+                        } else {
+                            x += 1;
+                            None
+                        }
+                    } else {
+                        x -= 1;
+                        None
+                    }
+                } else {
+                    None
+                }
+            }) {
+                if new_corn == (500, 0) {
+                    true
+                } else {
+                    walls.insert(new_corn);
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .unwrap();
+    println!("part2: {:?}", part2 + 1);
 }
