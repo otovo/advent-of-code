@@ -1,10 +1,12 @@
 use itertools::Itertools;
+use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 12] = [
-    day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 13] = [
+    day_13, day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03,
+    day_02, day_01,
 ];
 
 //day 01
@@ -538,8 +540,8 @@ pub fn day_11(input: String) {
     println!("part2: {}", part2);
 }
 
+//day 12
 type Coord = (usize, usize);
-
 struct Map {
     height_map: Vec<Vec<usize>>,
     root: Coord,
@@ -631,4 +633,38 @@ pub fn day_12(input: String) {
 
     println!("part1: {}", map.bfs(map.root, 123, true));
     println!("part2: {}", map.bfs(map.term, 97, false));
+}
+
+//day 13
+fn packet_cmp(left: &[usize], right: &[usize]) -> bool {
+    if let Some((l, r)) = left.iter().zip(right).find(|(l, r)| l != r) {
+        return l < r;
+    }
+    left.len() < right.len()
+}
+
+pub fn day_13(input: String) {
+    // Not working, completed in python
+    let re = Regex::new(r"(\d+)").unwrap();
+    let pairs = input
+        .split("\n\n")
+        .map(|p| {
+            p.lines()
+                .map(|l| {
+                    re.captures_iter(l)
+                        .map(|x| x[1].parse::<usize>().unwrap())
+                        .collect_vec()
+                })
+                .collect_tuple()
+                .unwrap()
+        })
+        .collect_vec();
+    let part = pairs
+        .iter()
+        .enumerate()
+        .filter_map(|(i, (x, y))| if packet_cmp(x, y) { Some(i + 1) } else { None })
+        .collect_vec();
+    let part1: usize = part.iter().sum();
+    println!("part1: {:?}", part);
+    println!("part1: {:?}", part1);
 }
