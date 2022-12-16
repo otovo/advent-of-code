@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from os import wait
 import numpy as np
 import sys
 import itertools
@@ -59,35 +60,6 @@ def draw_path_on_grid(path: Path, grid: list[list[str]]) -> None:
             while x != end[0] + 1 * direction:
                 grid[y][x] = "#"
                 x += direction * 1
-
-
-def set_up_grid(paths: list[Path]) -> tuple[list[list[str]], int, int, int, int]:
-    min_x = paths[0].min_x
-    max_x = paths[0].max_x
-    min_y = paths[0].min_y
-    max_y = paths[0].max_y
-
-    for path in paths:
-        if path.min_x < min_x:
-            min_x = path.min_x
-        if path.max_x > max_x:
-            max_x = path.max_x
-        if path.min_y < min_y:
-            min_y = path.min_y
-        if path.max_y > max_y:
-            max_y = path.max_y
-
-    grid = [
-        ["." for _ in range(max_x + 1)] for _ in range(max_y + 1)
-    ]  # index as grid[y][x]
-    grid[0][500] = "+"
-
-    for path in paths:
-        draw_path_on_grid(path, grid)
-
-    # visualize(grid, min_x, max_x, 0, max_y)
-
-    return grid, min_x, max_x, min_y, max_y
 
 
 def visualize(
@@ -153,6 +125,65 @@ def can_move_diagonal_right(pos: tuple[int, int], grid: list[list[str]]) -> bool
     )
 
 
+def find_path_ranges(paths: list[Path]) -> tuple[int, int, int, int]:
+    min_x = paths[0].min_x
+    max_x = paths[0].max_x
+    min_y = paths[0].min_y
+    max_y = paths[0].max_y
+
+    for path in paths:
+        if path.min_x < min_x:
+            min_x = path.min_x
+        if path.max_x > max_x:
+            max_x = path.max_x
+        if path.min_y < min_y:
+            min_y = path.min_y
+        if path.max_y > max_y:
+            max_y = path.max_y
+
+    return min_x, max_x, min_y, max_y
+
+
+def set_up_grid(paths: list[Path]) -> tuple[list[list[str]], int, int, int, int]:
+    min_x, max_x, min_y, max_y = find_path_ranges(paths)
+    grid = [
+        ["." for _ in range(max_x + 1)] for _ in range(max_y + 1)
+    ]  # index as grid[y][x]
+    grid[0][500] = "+"
+
+    for path in paths:
+        draw_path_on_grid(path, grid)
+
+    # visualize(grid, min_x, max_x, 0, max_y)
+
+    return grid, min_x, max_x, min_y, max_y
+
+
+def set_up_grid_part_2(paths: list[Path]):
+    min_x, max_x, min_y, max_y = find_path_ranges(paths)
+
+    grid = [
+        ["." for _ in range(max_x * 2 + 1)] for _ in range(max_y + 1 + 2)
+    ]  # index as grid[y][x]
+    grid[0][500] = "+"
+
+    for i in range(len(grid[0])):
+        grid[-1][i] = "#"
+
+    for path in paths:
+        draw_path_on_grid(path, grid)
+
+    # visualize(grid, min_x, max_x, 0, max_y)
+
+    return grid, min_x, max_x, min_y, max_y
+
+
+def at_rest(
+    sand_pos: tuple[int, int], min_x: int, max_x: int, min_y: int, max_y: int
+) -> bool:
+    return sand_pos[0] == max_y
+
+
 def simulate(
     grid: list[list[str]], min_x: int, max_x: int, min_y: int, max_y: int
 ) -> int:
@@ -161,10 +192,9 @@ def simulate(
     while True:
         sand_at_rest = False
 
+        sand_source = (500, 0)
         sand_pos = (500, 0)
         while not sand_at_rest:
-            if sand_pos == (494, 9):
-                breakpoint()
             if can_move_down(sand_pos, grid):
                 sand_pos = go_down(sand_pos)
             elif can_move_diagonal_left(sand_pos, grid):
@@ -172,8 +202,12 @@ def simulate(
             elif can_move_diagonal_right(sand_pos, grid):
                 sand_pos = go_diagonal_right(sand_pos)
             else:
-                if is_outside_rocks(sand_pos, min_x, max_x, min_y, max_y):
-                    visualize(grid, min_x, max_x, 0, max_y)
+                if (
+                    is_outside_rocks(sand_pos, min_x, max_x, min_y, max_y)
+                    or at_rest(sand_pos, min_x, max_x, min_y, max_y)
+                    or grid[0][500] == "o"
+                ):
+                    # visualize(grid, min_x, max_x, 0, max_y)
                     return units_of_sand_at_rest
 
                 sand_at_rest = True
@@ -186,3 +220,9 @@ if __name__ == "__main__":
     grid, min_x, max_x, min_y, max_y = set_up_grid(paths)
     units_of_sand_at_rest = simulate(grid, min_x, max_x, min_y, max_y)
     print(f"Solution part 1: {units_of_sand_at_rest}")
+
+    # This part could probably have been solved much more memory efficient,
+    # but an easy win was to just make a pretty big floor from 0 to max_x*2
+    grid, min_x, max_x, min_y, max_y = set_up_grid_part_2(paths)
+    units_of_sand_at_rest = simulate(grid, 0, max_x * 2, min_y, max_y + 2)
+    print(f"Solution part 2: {units_of_sand_at_rest}")
