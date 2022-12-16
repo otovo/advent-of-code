@@ -1,10 +1,12 @@
 use itertools::Itertools;
+use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
 // I'm keeping it all in one file so that i can easily reference previous days, and keep track of
 // how many lines I've written total
 
-pub static SOLUTIONS: [fn(String); 12] = [
-    day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03, day_02, day_01,
+pub static SOLUTIONS: [fn(String); 14] = [
+    day_14, day_13, day_12, day_11, day_10, day_09, day_08, day_07, day_06, day_05, day_04, day_03,
+    day_02, day_01,
 ];
 
 //day 01
@@ -538,8 +540,8 @@ pub fn day_11(input: String) {
     println!("part2: {}", part2);
 }
 
+//day 12
 type Coord = (usize, usize);
-
 struct Map {
     height_map: Vec<Vec<usize>>,
     root: Coord,
@@ -631,4 +633,112 @@ pub fn day_12(input: String) {
 
     println!("part1: {}", map.bfs(map.root, 123, true));
     println!("part2: {}", map.bfs(map.term, 97, false));
+}
+
+//day 13
+fn packet_cmp(left: &[usize], right: &[usize]) -> bool {
+    if let Some((l, r)) = left.iter().zip(right).find(|(l, r)| l != r) {
+        return l < r;
+    }
+    left.len() < right.len()
+}
+
+pub fn day_13(input: String) {
+    // Not working, completed in python
+    let re = Regex::new(r"(\d+)").unwrap();
+    let pairs = input
+        .split("\n\n")
+        .map(|p| {
+            p.lines()
+                .map(|l| {
+                    re.captures_iter(l)
+                        .map(|x| x[1].parse::<usize>().unwrap())
+                        .collect_vec()
+                })
+                .collect_tuple()
+                .unwrap()
+        })
+        .collect_vec();
+    let part = pairs
+        .iter()
+        .enumerate()
+        .filter_map(|(i, (x, y))| if packet_cmp(x, y) { Some(i + 1) } else { None })
+        .collect_vec();
+    let part1: usize = part.iter().sum();
+    println!("part1: {:?}", part);
+    println!("part1: {:?}", part1);
+}
+
+//day 14
+pub fn day_14(input: String) {
+    let mut walls: HashSet<(i32, i32)> = input
+        //  parsing
+        .lines()
+        .map(|l| {
+            l.split(" -> ")
+                .map(|p| {
+                    p.splitn(2, ',')
+                        .map(|n| n.parse::<i32>().unwrap())
+                        .collect_tuple::<(i32, i32)>()
+                        .unwrap()
+                })
+                .collect_vec()
+        })
+        //  unpack to walls
+        .flat_map(|pairs| {
+            pairs
+                .iter()
+                .zip(pairs.iter().skip(1))
+                .flat_map(|(&(x1, y1), &(x2, y2))| {
+                    if x1 == x2 {
+                        (y1.min(y2)..=y1.max(y2)).map(|y| (x1, y)).collect_vec()
+                    } else {
+                        (x1.min(x2)..=x1.max(x2)).map(|x| (x, y1)).collect_vec()
+                    }
+                })
+                .collect_vec()
+        })
+        .collect();
+
+    let bottom = walls.iter().map(|(_, y)| *y).max().unwrap();
+    let floor = bottom + 2;
+    let mut part1 = true;
+    let part2 = (0..)
+        .find(|i| {
+            let mut x = 500;
+            if let Some(new_corn) = (0..).find_map(|y| {
+                if y == floor {
+                    if part1 {
+                        println!("part1: {:?}", i);
+                        part1 = false;
+                    }
+                    Some((x, y - 1))
+                } else if walls.contains(&(x, y)) {
+                    if walls.contains(&(x - 1, y)) {
+                        if walls.contains(&(x + 1, y)) {
+                            Some((x, y - 1))
+                        } else {
+                            x += 1;
+                            None
+                        }
+                    } else {
+                        x -= 1;
+                        None
+                    }
+                } else {
+                    None
+                }
+            }) {
+                if new_corn == (500, 0) {
+                    true
+                } else {
+                    walls.insert(new_corn);
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .unwrap();
+    println!("part2: {:?}", part2 + 1);
 }
