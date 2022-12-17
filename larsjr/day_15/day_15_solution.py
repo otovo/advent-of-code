@@ -16,16 +16,16 @@ class Sensor:
     closest_beacon: tuple[int, int]
     occupied_positions: list[tuple[int, int]] = field(default_factory=list)
     manhatten_distance: int = -1
-    xmin = sys.maxsize
-    xmax = sys.maxsize * -1
+    xmin = 0
+    xmax = 0
 
     def __post_init__(self):
         self.manhatten_distance = self.compute_manhatten_distance(
             self.position, self.closest_beacon
         )
 
-        self.xmin = self.position[0] - self.manhatten_distance - 1
-        self.xmax = self.position[0] + self.manhatten_distance + 1
+        self.xmin = min(self.closest_beacon[0], self.position[0])
+        self.xmax = max(self.closest_beacon[0], self.position[0])
 
     def point_occupied_by_sensor(self, point: tuple[int, int]) -> bool:
         return (
@@ -109,48 +109,18 @@ def parse_input(filename: str):
     return sensors
 
 
-def find_occupied_positions_at_row_faster(row: int, sensors: list[Sensor]) -> int:
-    xmin = min(sensors, key=lambda p: p.xmin).xmin
-    xmax = max(sensors, key=lambda p: p.xmax).xmax
+def find_occupied_positions_at_row(row: int, sensors: list[Sensor]) -> int:
     ranges = [sensor.occupied_range_for_row(row=row) for sensor in sensors]
     ranges = [r for r in ranges if r is not None]
     merged_ranges = merge_ranges(ranges)
 
-    breakpoint()
-    occupied_positions = set()
-    for i in range(xmin, xmax):
-        for sensor in sensors:
-            if sensor.point_occupied_by_sensor((i, row)):
-                occupied_positions.add((i, row))
-                break
+    occupied_positions = 0
+    for r in merged_ranges:
+        occupied_positions += (r.xmax - r.xmin) + 1
 
-    for sensor in sensors:
-        if sensor.position in occupied_positions:
-            occupied_positions.remove(sensor.position)
-
-    return len(occupied_positions)
-
-
-def find_occupied_positions_at_row(row: int, sensors: list[Sensor]) -> int:
-    xmin = min(sensors, key=lambda p: p.xmin).xmin
-    xmax = max(sensors, key=lambda p: p.xmax).xmax
-
-    occupied_positions = set()
-    for i in range(xmin, xmax):
-        for sensor in sensors:
-            if sensor.point_occupied_by_sensor((i, row)):
-                occupied_positions.add((i, row))
-                break
-
-    for sensor in sensors:
-        if sensor.position in occupied_positions:
-            occupied_positions.remove(sensor.position)
-
-    return len(occupied_positions)
+    return occupied_positions
 
 
 if __name__ == "__main__":
     sensors = parse_input("test_input.txt")
-    print(
-        f"Solution part 1: {find_occupied_positions_at_row_faster(row=10, sensors=sensors)}"
-    )
+    print(f"Solution part 1: {find_occupied_positions_at_row(row=10, sensors=sensors)}")
