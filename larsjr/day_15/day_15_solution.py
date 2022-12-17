@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 import re
-import sys
 
 
 @dataclass
@@ -27,26 +26,27 @@ class Sensor:
         self.xmin = min(self.closest_beacon[0], self.position[0])
         self.xmax = max(self.closest_beacon[0], self.position[0])
 
-    def point_occupied_by_sensor(self, point: tuple[int, int]) -> bool:
-        return (
-            self.compute_manhatten_distance(self.position, point)
-            <= self.manhatten_distance
-            and point != self.closest_beacon
-        )
+    def occupied_range_for_row(self, row: int, exclude_becon_pos=True) -> Range | None:
+        x, y = self.position
+        diff = abs(y - row)
+        if diff > self.manhatten_distance:
+            return None
+        start_occupied = x - (self.manhatten_distance - diff)
+        end_occupied = x + (self.manhatten_distance - diff)
 
-    def compute_occupied_positions(self):
-        xmin = self.position[0] - self.manhatten_distance
-        xmax = self.position[0] + self.manhatten_distance
-        ymin = self.position[1] - self.manhatten_distance
-        ymax = self.position[1] + self.manhatten_distance
+        if exclude_becon_pos:
+            if (
+                start_occupied == self.closest_beacon[0]
+                and row == self.closest_beacon[1]
+            ):
+                start_occupied += 1
+            if end_occupied == self.closest_beacon[0] and row == self.closest_beacon[1]:
+                end_occupied -= 1
 
-        for j in range(ymin, ymax):
-            for i in range(xmin, xmax):
-                if (
-                    self.compute_manhatten_distance(self.position, (i, j))
-                    <= self.manhatten_distance
-                ) and (i, j) != self.closest_beacon:
-                    self.occupied_positions.append((i, j))
+            if start_occupied > end_occupied:
+                return None
+
+        return Range(row=row, xmin=start_occupied, xmax=end_occupied)
 
     @staticmethod
     def compute_manhatten_distance(
@@ -54,24 +54,10 @@ class Sensor:
     ) -> int:
         return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
 
-    def occupied_range_for_row(self, row: int) -> Range | None:
-        x, y = self.position
-        diff = abs(y - row)
-        if diff > self.manhatten_distance:
-            return None
-        occupied_for_row = (self.manhatten_distance - diff) * 2 + 1
-        start_occupied = x - (self.manhatten_distance - diff)
-        end_occupied = x + (self.manhatten_distance - diff)
-
-        if start_occupied == self.closest_beacon[0]:
-            start_occupied += 1
-        if end_occupied == self.closest_beacon[0]:
-            end_occupied -= 1
-
-        return Range(row=row, xmin=start_occupied, xmax=end_occupied)
-
 
 def merge_ranges(ranges: list[Range]) -> list[Range]:
+    if not len(ranges):
+        return []
     sorted_ranges = sorted(ranges, key=lambda r: r.xmin)
 
     merged_ranges = []
@@ -121,6 +107,37 @@ def find_occupied_positions_at_row(row: int, sensors: list[Sensor]) -> int:
     return occupied_positions
 
 
+def find_distress_beacon_position(max_value: int, sensors: list[Sensor]) -> int:
+    available_positions = set()
+
+    for row in range(0, max_value):
+        if row % 100000 == 0:
+            print(f"At row: {row}")
+
+        ranges = [
+            sensor.occupied_range_for_row(row=row, exclude_becon_pos=False)
+            for sensor in sensors
+        ]
+        ranges = [r for r in ranges if r is not None]
+        merged_ranges = merge_ranges(ranges)
+
+        for i in range(len(merged_ranges) - 1):
+            start = merged_ranges[i].xmax + 1
+            for x in range(start, merged_ranges[i + 1].xmin):
+                available_positions.add((x, row))
+
+    if len(available_positions) > 1:
+        raise ValueError("More than one possible position found!")
+    x, y = available_positions.pop()
+    return x * 4000000 + y
+
+
 if __name__ == "__main__":
-    sensors = parse_input("test_input.txt")
-    print(f"Solution part 1: {find_occupied_positions_at_row(row=10, sensors=sensors)}")
+    sensors = parse_input("input.txt")
+    print(
+        f"Solution part 1: {find_occupied_positions_at_row(row=2000000, sensors=sensors)}"
+    )
+
+    print(
+        f"Solution part 2: {find_distress_beacon_position(max_value=4000000, sensors=sensors)}"
+    )
