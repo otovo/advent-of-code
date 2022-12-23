@@ -147,13 +147,13 @@ def visualize_chamber(chamber: list[list[str]]) -> None:
         print(output)
 
 
-def simulate(chamber: list[list[str]], directions: str) -> int:
+def simulate(chamber: list[list[str]], directions: str, num_rocks) -> int:
     index_of_highest_rock = -1
     direction_provider = DirectionProvider(directions)
     shape_factory = ShapeFactory()
     highest_seen_y = -1
 
-    for _ in range(2022):
+    for _ in range(num_rocks):
         rock = shape_factory.get_shape(2, highest_seen_y + 4)
         while len(chamber) <= rock.ymax + 2:
             chamber.append(["." for _ in range(7)])
@@ -197,4 +197,4 @@ if __name__ == "__main__":
     chamber = [["." for _ in range(7)] for _ in range(5)]
     directions = read_input("input.txt")
 
-    print(f"Solution part 1: {simulate(chamber, directions)}")
+    print(f"Solution part 1: {simulate(chamber, directions, num_rocks=2022)}")
