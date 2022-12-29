@@ -29,6 +29,7 @@ def find_number_with_identifier(
     for index, number in number_for_index.items():
         if number.identifier == identifier:
             return index, number
+    breakpoint()
     raise IdentifierNotFound(identifier)
 
 
@@ -71,25 +72,37 @@ def to_list(number_for_index: dict[int, Number]) -> list[Number]:
 def mix(numbers: list[Number]) -> list[Number]:
     number_for_index = {i: n for i, n in enumerate(numbers)}
 
-    for i in range(len(number_for_index)):
+    for identifier in range(len(number_for_index)):
         index_of_number_to_move, number_to_move = find_number_with_identifier(
-            number_for_index, i
+            number_for_index, identifier
         )
+
+        if number_to_move.value == 0:
+            continue
 
         new_index = calculate_new_index(
             index_of_number_to_move, number_to_move.value, len(number_for_index)
         )
 
         if new_index > index_of_number_to_move:
-            for i in range(index_of_number_to_move + 1, new_index + 1):
+            for i in range(
+                index_of_number_to_move + 1, new_index + 1
+            ):  # can stop at new index here?
                 number_for_index[i - 1] = number_for_index[i]
         elif new_index < index_of_number_to_move:
-            for i in range(index_of_number_to_move, max(new_index - 1, 1), -1):
+            for i in range(index_of_number_to_move, max(new_index - 1, 0), -1):
                 number_for_index[i] = number_for_index[i - 1]
 
         number_for_index[new_index] = number_to_move
+        # if len(set(n.identifier for n in to_list(number_for_index))) < len(numbers):
+        #     breakpoint()
+        #     a = 1
 
     return to_list(number_for_index)
+
+
+def as_flat_list(numbers: list[Number]) -> list[int]:
+    return [n.value for n in numbers]
 
 
 def find_nth_numbers_after_zero(numbers: list[int], iterations: list[int]) -> list[int]:
@@ -118,4 +131,16 @@ if __name__ == "__main__":
     coordinate_elements = find_nth_numbers_after_zero(
         [n.value for n in mixed_numbers], [1000, 2000, 3000]
     )
-    print(sum(coordinate_elements))
+    print(f"Solution part 1: {sum(coordinate_elements)}")
+
+    encryption_key = 811589153
+    for n in numbers:
+        n.value *= encryption_key
+
+    for _ in range(10):
+        numbers = mix(numbers)
+
+    coordinate_elements = find_nth_numbers_after_zero(
+        [n.value for n in numbers], [1000, 2000, 3000]
+    )
+    print(f"Solution part 2: {sum(coordinate_elements)}")
