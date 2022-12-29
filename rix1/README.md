@@ -75,3 +75,17 @@ of code.
 If there are any TIL's today, I guess it would be that (again) it pays off to
 have a nice datastructure. Solving task 2 was done on a single line, just
 avoiding reversing the array before moving it to the new column.
+
+#### Day 7
+
+I struggled a lot with getting the inputs correct...TODO
+
+#### Day 8
+
+First day I solve with recursion. I think I could have solved this exercise even
+faster with test-driven approach. Spent a lot of time debugging and fixing the
+recursive `navigate()` function.
+
+I learned however how to [debug my code with the Chrome
+inspector](https://deno.land/manual@v1.27.0/getting_started/debugging_your_code).
+Big benefit of using web technlogies.
