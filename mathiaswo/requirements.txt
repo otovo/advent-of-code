@@ -1,0 +1,3 @@
+black
+requests
+python-dotenv
